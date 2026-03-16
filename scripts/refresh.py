@@ -126,7 +126,7 @@ def verify_json_syntax():
 
 def main():
     """Main refresh function"""
-    print(f"🔵 Refreshing OpenRouter models...")
+    print(f"[INFO] Refreshing OpenRouter models...")
     print(f"   API: {OPENROUTER_API}")
     print(f"   Config: {OPENCODE_CONFIG_PATH}")
     print()
@@ -134,28 +134,28 @@ def main():
     # Fetch models
     models_data = fetch_openrouter_models()
     model_count = len(models_data.get("data", []))
-    print(f"🔵 Fetched {model_count} models from OpenRouter")
+    print(f"[INFO] Fetched {model_count} models from OpenRouter")
 
     # Format models
     formatted_models = format_for_opencode(models_data)
-    print(f"🔵 Formatted {len(formatted_models)} models for OpenCode")
+    print(f"[INFO] Formatted {len(formatted_models)} models for OpenCode")
 
     # Update config
     if update_opencode_config(formatted_models):
-        print(f"🔵 Updated {len(formatted_models)} models in opencode.json")
+        print(f"[INFO] Updated {len(formatted_models)} models in opencode.json")
 
         # Verify
         if verify_json_syntax():
-            print(f"✅ JSON syntax verified successfully")
+            print(f"[OK] JSON syntax verified successfully")
             print()
-            print(f"🟢 Model refresh completed!")
+            print(f"[OK] Model refresh completed!")
             print(f"   {len(formatted_models)} OpenRouter models are now available")
             sys.exit(0)
         else:
-            print(f"🔴 JSON syntax verification failed")
+            print(f"[ERROR] JSON syntax verification failed")
             sys.exit(1)
     else:
-        print(f"🔴 Failed to update opencode.json")
+        print(f"[ERROR] Failed to update opencode.json")
         sys.exit(1)
 
 
