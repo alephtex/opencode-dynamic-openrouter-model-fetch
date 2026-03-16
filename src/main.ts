@@ -1,25 +1,31 @@
 import { spawn } from "child_process";
 import { join } from "path";
+import { tool, type Plugin } from "@opencode-ai/plugin";
 
-export default function DynamicModelRefresh() {
+const DynamicModelRefresh: Plugin = async (input) => {
+  const { client } = input;
+
   return {
     name: "opencode-dynamic-openrouter-model-fetch",
     description: "Dynamic OpenRouter model refresh plugin",
 
-    // Register the /dynamic-model-refresh command
-    commands: {
-      "dynamic-model-refresh": {
+    tool: {
+      "dynamic-model-refresh": tool({
         description: "Refresh OpenRouter models from API",
-        run: async (context: any) => {
+        args: {},
+        async execute(args, context) {
           // Show starting message
-          context.terminal.write("🔄 Starting model refresh...\n");
-          context.terminal.write(
-            "   Fetching models from OpenRouter API...\n\n",
-          );
+          await client.app.log({
+            body: {
+              service: "dynamic-model-refresh",
+              level: "info",
+              message: "Starting model refresh...",
+            },
+          });
 
           try {
             // Get the directory where this plugin is located
-            const scriptPath = join(process.cwd(), "scripts", "refresh.py");
+            const scriptPath = join(__dirname, "..", "scripts", "refresh.py");
 
             const python = spawn("python", [scriptPath], {
               stdio: ["ignore", "pipe", "pipe"],
@@ -42,37 +48,60 @@ export default function DynamicModelRefresh() {
               python.on("close", resolve);
             });
 
-            // Show output in terminal
+            // Log output
             if (stdout) {
-              context.terminal.write(stdout);
+              await client.app.log({
+                body: {
+                  service: "dynamic-model-refresh",
+                  level: "info",
+                  message: stdout,
+                },
+              });
             }
 
             if (stderr) {
-              context.terminal.write(`⚠️  ${stderr}\n`);
+              await client.app.log({
+                body: {
+                  service: "dynamic-model-refresh",
+                  level: "warn",
+                  message: stderr,
+                },
+              });
             }
 
             if (exitCode === 0) {
-              context.terminal.write(
-                "\n✅ Model refresh completed successfully!\n",
-              );
-              context.terminal.write(
-                "   OpenRouter models have been updated.\n",
-              );
+              await client.app.log({
+                body: {
+                  service: "dynamic-model-refresh",
+                  level: "info",
+                  message: "Model refresh completed successfully!",
+                },
+              });
+              return "✅ Model refresh completed successfully! OpenRouter models have been updated.";
             } else {
-              context.terminal.write(
-                `\n❌ Model refresh failed with exit code ${exitCode}\n`,
-              );
+              await client.app.log({
+                body: {
+                  service: "dynamic-model-refresh",
+                  level: "error",
+                  message: `Model refresh failed with exit code ${exitCode}`,
+                },
+              });
+              return `❌ Model refresh failed with exit code ${exitCode}`;
             }
-
-            return { success: exitCode === 0 };
           } catch (error: any) {
-            context.terminal.write(
-              `\n❌ Error running refresh script: ${error.message}\n`,
-            );
-            return { success: false, error: error.message };
+            await client.app.log({
+              body: {
+                service: "dynamic-model-refresh",
+                level: "error",
+                message: `Error running refresh script: ${error.message}`,
+              },
+            });
+            return `❌ Error running refresh script: ${error.message}`;
           }
         },
-      },
+      }),
     },
   };
-}
+};
+
+export default DynamicModelRefresh;

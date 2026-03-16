@@ -18,6 +18,9 @@
   ],
   "author": "benjamin.steimer",
   "license": "MIT",
+  "dependencies": {
+    "@opencode-ai/plugin": "^1.0.0"
+  },
   "devDependencies": {
     "@types/node": "^20.19.37",
     "typescript": "^5.9.3"
