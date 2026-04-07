@@ -13,8 +13,7 @@ const DynamicModelRefresh: Plugin = async (input) => {
   return {
     name: "opencode-dynamic-openrouter-model-fetch",
     description: "Dynamic OpenRouter model refresh plugin",
-
-tool: {
+    tool: {
     "model-refresh": tool({
           description: "Refresh OpenRouter models from API",
           args: {},
@@ -147,10 +146,10 @@ tool: {
               return `❌ Error running refresh script: ${error.message}`;
             }
           },
-        }),
-      },
-    },
-  };
-};
+        })
+      }
+    }
+  ;
+}
 
 export default DynamicModelRefresh;
